@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart</title>
+    <style>
+        body {
+          font-family: Verdana, Arial, sans-serif;
+          margin: 60;
+          text-align: center;
+        }
+        h1 {
+          color: black;
+          font-size: 48px;
+          margin: 10px;
+        }
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 50px;
+          text-align: left;
+        }
+        #parsedData {
+          font-size: 24px;
+          margin-right: 0px;
+        }
+        #espData {
+          width: 50px;
+          font-size: 16px;
+          text-align: left;
+        }
+        #controlButton {
+          padding: 10px 20px;
+          font-size: 16px;
+        }
+      </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <canvas id="chart"></canvas>
+  <script>
+    const socket = io();
+    //creat the chart
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [], //list for x horizontall
+            datasets: [{
+                labels: 'parsed Data',
+                data: [], // list of parsed data
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1,
+                fill: 'origin',
+            }]
+        },
+        option: {
+            responsive: true,
+            maintainAspecRatio: false,
+            scales: {
+                x: {
+                    display: true, 
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    display: true, 
+                    title: {
+                        display: true, 
+                        text: 'Parsed Data'
+                    }
+                }
+            }
+        }
+    });
+    // when receiving parsed data from server via socket connection
+    socket.on('parsedData', (parsedData) => {
+        updateChart(parsedData);
+    });
+
+    //update the new chart with the newest parsed data
+    function updateChart(parsedData){
+        const time = new Date().toLocaleTimeString(); //take the real-time currently 
+        chart.data.labels.push(time); //add labels time to x 
+        chart.data.datasets[0].data.push(parsedData); //add parsed data to datasets
+        chart.update(); //update chart
+    }
+  </script>
+</body>
+</html>

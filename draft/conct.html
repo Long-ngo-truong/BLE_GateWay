@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>GATT Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="mt-5">GATT Profile</h1>
+
+    <div id="gattProfile" class="mt-3"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // When receiving the GATT profile from the server
+    socket.on('gattProfile', (services, characteristics) => {
+      console.log('Displaying GATT profile...');
+      displayGattProfile(services, characteristics);
+    });
+
+    // Display GATT profile information
+    function displayGattProfile(services, characteristics) {
+      const gattProfile = document.getElementById('gattProfile');
+      gattProfile.innerHTML = '';
+
+      const table = document.createElement('table');
+      table.classList.add('table');
+
+      const tableHead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      const serviceHeader = document.createElement('th');
+      serviceHeader.innerText = 'Service UUID';
+      const characteristicHeader = document.createElement('th');
+      characteristicHeader.innerText = 'Characteristic UUID';
+
+      headRow.appendChild(serviceHeader);
+      headRow.appendChild(characteristicHeader);
+      tableHead.appendChild(headRow);
+      table.appendChild(tableHead);
+
+      const tableBody = document.createElement('tbody');
+
+      services.forEach((service) => {
+        const serviceRow = document.createElement('tr');
+        const serviceCell = document.createElement('td');
+        serviceCell.innerText = service.uuid;
+
+        serviceRow.appendChild(serviceCell);
+        tableBody.appendChild(serviceRow);
+
+        service.characteristics.forEach((characteristic) => {
+          const characteristicRow = document.createElement('tr');
+          const characteristicCell = document.createElement('td');
+          characteristicCell.innerText = characteristic.uuid;
+
+          characteristicRow.appendChild(characteristicCell);
+          tableBody.appendChild(characteristicRow);
+        });
+      });
+
+      table.appendChild(tableBody);
+      gattProfile.appendChild(table);
+    }
+  </script>
+</body>
+
+</html>

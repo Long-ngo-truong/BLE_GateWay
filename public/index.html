@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLE Devices</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .device-container {
+      background-color: #f2f2f2;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .connect-button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BLE Devices</h1>
+    <button class="btn btn-primary mb-3" onclick="rescanDevices()">Scan</button>
+    <ul id="device-list"></ul>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function rescanDevices() {
+      const deviceList = document.getElementById('device-list');
+      deviceList.innerHTML = ''; // Xóa danh sách cũ
+
+      socket.emit('rescanDevices'); // Gửi yêu cầu rescan đến server
+
+      // Lắng nghe sự kiện 'bleFoundList' từ server khi có danh sách mới được trả về
+      socket.on('bleFoundList', (devices) => {
+        devices.forEach((device) => {
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `
+            <div class="device-container">
+              <div class="device-info">
+                <strong>Name:</strong> ${device.name}<br>
+                <strong>Address:</strong> ${device.address}<br>
+                <strong>RSSI:</strong> ${device.rssi}
+              </div>
+              <button class="btn btn-primary btn-sm connect-button" data-device="${device.address}">Connect</button>
+            </div>
+          `;
+          deviceList.appendChild(listItem);
+        });
+      });
+    }
+
+    // Lắng nghe sự kiện 'bleFoundList' từ server
+    socket.on('bleFoundList', (devices) => {
+      const deviceList = document.getElementById('device-list');
+      deviceList.innerHTML = ''; // Xóa danh sách cũ
+
+      devices.forEach((device) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+          <div class="device-container">
+            <div class="device-info">
+              <strong>Name:</strong> ${device.name}<br>
+              <strong>Address:</strong> ${device.address}<br>
+              <strong>RSSI:</strong> ${device.rssi}
+            </div>
+            <button class="btn btn-primary btn-sm connect-button" data-device="${device.address}">Connect</button>
+          </div>
+        `;
+        deviceList.appendChild(listItem);
+      });
+    });
+  </script>
+</body>
+</html>

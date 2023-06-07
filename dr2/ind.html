@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BLE Devices</title>
+    <style>
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>BLE Devices</h1>
+    <ul id="deviceList"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      socket.on('bleFoundList', (devices) => {
+        const deviceList = document.getElementById('deviceList');
+        deviceList.innerHTML = '';
+
+        devices.forEach((device) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `Name: ${device.name}, Address: ${device.address}, RSSI: ${device.rssi}`;
+          deviceList.appendChild(listItem);
+        });
+      });
+    </script>
+  </body>
+</html>
